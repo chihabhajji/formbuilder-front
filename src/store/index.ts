@@ -13,14 +13,18 @@ import {setupListeners} from "@reduxjs/toolkit/dist/query/react";
 import {enqueueSnackbar} from "notistack";
 
 interface FormState {
+    campaignName: string | undefined;
     fields: Field[];
     required: string[];
+    fieldsHistory: Field[];
     properties: JSONSchemaType<any>;
 }
 
 const initialState: FormState = {
+    campaignName: undefined,
     fields: [],
     required: [],
+    fieldsHistory: [],
     properties: {
         type: "object",
     }
@@ -37,6 +41,7 @@ export const formSlice = createSlice({
                 ...state.properties,
                 type: "object",
             };
+            state.campaignName = action.payload.campaignName
         },
         addField: (state, action: PayloadAction<Field>) => {
             const index = state.fields.findIndex((field) => field.name === action.payload.name);
@@ -64,18 +69,32 @@ export const formSlice = createSlice({
                 }
             }
         },
-        removeFields: (state) => {
+        undoLast: (state) => {
+            if (state.fields.length === 0) return;
+            state.fieldsHistory.push(state.fields!.pop()!);
+        },
+        redoLast: (state) => {
+            if (state.fieldsHistory.length === 0) return;
+            state.fields.push(state.fieldsHistory!.pop()!);
+        },
+        reset: (state) => {
             state.fields = [];
+            state.fieldsHistory = [];
+            state.required = [];
+            state.properties = {
+                type: "object",
+            }
+            state.campaignName = undefined;
         },
         toggleRequired: (state, action: PayloadAction<string>) => {
-            const index = state.required.findIndex((name) => name === action.payload) ;
+            const index = state.required.findIndex((name) => name === action.payload);
             const wasRequired = index !== -1;
             if (wasRequired) {
                 state.required.splice(index, 1);
             } else {
                 state.required.push(action.payload);
             }
-        //     handle properties
+            //     handle properties
             state.properties = {
                 ...state.properties,
                 properties: {
@@ -91,6 +110,7 @@ export const formSlice = createSlice({
                     }
                 }
             }
+            console.log(state.properties)
         },
         removeField: (state, action: PayloadAction<string>) => {
             state.fields = state.fields.filter((field) => field.name !== action.payload);
@@ -103,22 +123,37 @@ export const formSlice = createSlice({
             }
         },
         addOption: (state, action: PayloadAction<string>) => {
-          state.fields.find((field) => field.name === action.payload)?.options?.push({
+            state.fields.find((field) => field.name === action.payload)?.options?.push({
                 value: `${action.payload}-${state.fields.find((field) => field.name === action.payload)?.options?.length}`,
                 label: `${action.payload}-${state.fields.find((field) => field.name === action.payload)?.options?.length}`,
-          })
+            })
         },
-        addProperties: (state, action: PayloadAction<{ name: string, type: "address" | "email" | "password" | "date" }>) => {
-            state.properties = {
-                type: "object",
-                properties: {
-                    ...state.properties.properties,
-                    [action.payload.name]: {
-                        type: action.payload.type,
-                        ...state.properties[action.payload.name]
-                    }
+        setCampaignName: (state, action: PayloadAction<string | undefined>) => {
+            state.campaignName = action.payload;
+        },
+        addProperties: (state, action: PayloadAction<{ name: string, type: "email" | "date" | "password" | "address", format?: string }>) => {
+            // update fields
+            const index = state.fields.findIndex((field) => field.name === action.payload.name);
+            if (index !== -1) {
+                state.fields[index] = {
+                    ...state.fields[index],
+                    type: action.payload.type,
                 }
-            };
+                state.properties = {
+                    type: "object",
+                    properties: {
+                        ...state.properties.properties,
+                        [action.payload.name]: {
+                            ...state.properties[action.payload.name],
+                            type: "string",
+                            format: action.payload.format,
+                            errorMessage: {
+                                format: action.payload.format === "email" ? `Please enter a valid email format`: undefined,
+                            }
+                        }
+                    }
+                };
+            }
         }
     },
 });

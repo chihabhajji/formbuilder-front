@@ -5,6 +5,10 @@ const injectedRtkApi = api.injectEndpoints({
     endpoints: (build) => ({
         all: build.query<AllApiResponse, AllApiArg>({
             query: () => ({url: `/api/form-management/all`}),
+            providesTags: ['Form'],
+        }),
+        test: build.query<GetApiFormManagementOneByIdApiResponse, AllApiArg>({
+            query: () => ({url: `/api/form-management/test`}),
         }),
         getApiFormManagementOneById: build.query<
             GetApiFormManagementOneByIdApiResponse,
@@ -18,6 +22,7 @@ const injectedRtkApi = api.injectEndpoints({
                 method: "POST",
                 body: queryArg.createFormDto,
             }),
+            invalidatesTags: ['Form'],
         }),
         update: build.mutation<UpdateApiResponse, UpdateApiArg>({
             query: (queryArg) => ({
@@ -91,21 +96,27 @@ export type Field = {
 };
 export type FormInput = {
     _id: string;
+    campaignName: string;
     properties:  JSONSchemaType<unknown>;
     required: string[];
     fields?: Field[];
     answers?: object[];
+    createdAt: string;
+    updatedAt: string;
 };
 export type CreateFormDto = {
     properties:  JSONSchemaType<unknown>;
     required: string[];
     fields?: Field[];
+    campaignName: string;
 };
 export const {
     useAllQuery,
+    useLazyAllQuery, // you can use this if you prefer to have results in a promise
     useGetApiFormManagementOneByIdQuery,
     useCreateMutation,
     useUpdateMutation,
     useDeleteApiFormManagementByIdMutation,
     useSubmitFormAnswerMutation,
+    useTestQuery,
 } = injectedRtkApi;

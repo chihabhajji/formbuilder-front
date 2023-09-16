@@ -1,8 +1,8 @@
-import { forwardRef, Fragment, useRef } from "react";
-import { Control, FieldErrors, UseFormSetValue } from "react-hook-form";
-import { ChangeFormInput } from "./CustomForm.tsx";
-import CustomField from "./CustomField.tsx";
+import {forwardRef, useRef} from "react";
+import {Control, FieldErrors, UseFormSetValue} from "react-hook-form";
+import {ChangeFormInput} from "./CustomForm.tsx";
 import {Field} from "../../store/formManagementApi.ts";
+import CustomField from "./CustomField.tsx";
 
 export enum Component {
   text = "text",
@@ -90,7 +90,7 @@ type IMyGroup = {
   setValue: UseFormSetValue<any>;
 };
 type MyInputRef = any;
-export type MyInputProps = { editMode?: boolean } & (
+export type MyInputProps = { editmode?: boolean } & (
   | IMyInputText
   | IMyTextArea
   | IMyInputRadio
@@ -100,50 +100,32 @@ export type MyInputProps = { editMode?: boolean } & (
 );
 
 const CustomInput = forwardRef<MyInputRef, MyInputProps>((props, ref) => {
-  const { component, editMode } = props;
+  const { component, editmode } = props;
   const myKeyRef = useRef("myKey");
   switch (component) {
     case Component.group:
       const { fields, control, errors, onChangeForm, formId, setValue } = props;
       return (
-        <Fragment>
-          {fields.length > 0 && (
-            <div>
-              {fields.map((field, fi) => (
-                <CustomField
-                  {...{
-                    key: `field-${fi}`,
-                    editMode,
-                    field,
-                    control,
-                    errors,
-                    onChangeForm,
-                    formId,
-                    setValue,
-                  }}
-                />
-              ))}
-            </div>
-          )}
-        </Fragment>
-      );
-    case Component.file:
-      const { value, ...rest } = props;
-      if (value === undefined) {
-        myKeyRef.current = new Date().toISOString();
-      }
-      return (
-        <input
-          {...{
-            ref,
-            ...rest,
-            type: "file",
-            onChange: (e) => {
-              props.onChange(e.target.files);
-            },
-            key: myKeyRef.current,
-          }}
-        />
+          <div className={"flex flex-row w-full"}>
+            {fields.length > 0 && (
+                <div className={"shadow-2xl w-full"}>
+                  {fields.map((field, fi) => (
+                      <CustomField
+                          {...{
+                            key: `field-${fi}`,
+                            editmode,
+                            field,
+                            control,
+                            errors,
+                            onChangeForm,
+                            formId,
+                            setValue,
+                          }}
+                      />
+                  ))}
+                </div>
+            )}
+          </div>
       );
     case Component.select:
       if (props.value === undefined) {
@@ -151,6 +133,8 @@ const CustomInput = forwardRef<MyInputRef, MyInputProps>((props, ref) => {
       }
       return (
         <select
+            disabled={editmode}
+            className={"bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"}
           {...{
             ref,
             ...props,
@@ -158,17 +142,17 @@ const CustomInput = forwardRef<MyInputRef, MyInputProps>((props, ref) => {
               if (props.multiple) {
                 const values = Array.from(
                   e.target.selectedOptions,
-                  (option) => option.value
+                  (option) => option.value?.toString()
                 );
                 props.onChange(values);
                 return;
               }
-              props.onChange(e.target.value);
+              props.onChange(e.target.value?.toString());
             },
             key: myKeyRef.current,
           }}
         >
-          <option value={""} disabled>
+          <option value={undefined} disabled>
             Choose here
           </option>
           {props.options.length > 0 &&
@@ -181,11 +165,13 @@ const CustomInput = forwardRef<MyInputRef, MyInputProps>((props, ref) => {
       );
     case Component.radioGroup:
       return (
-        <Fragment>
+        <div className={"flex flex-col w-full"}>
           {props.options.length > 0 &&
             props.options.map((option, oi) => (
-              <Fragment key={`radio-input-${oi}`}>
+              <div className={"flex items-center h-5"} key={`radio-input-${oi}`}>
                 <input
+                    disabled={editmode}
+                    className={"w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"}
                   {...{
                     ref,
                     ...props,
@@ -199,13 +185,15 @@ const CustomInput = forwardRef<MyInputRef, MyInputProps>((props, ref) => {
                   }}
                 />
                 <label htmlFor={option.value}>{option.label}</label>
-              </Fragment>
+              </div>
             ))}
-        </Fragment>
+        </div>
       );
     case Component.textarea:
       return (
         <textarea
+            disabled={editmode}
+            className={"w-full border border-input bg-transparent shadow-sm hover:bg-accent hover:text-accent-foreground"}
           {...{
             ref,
             ...props,
@@ -263,6 +251,8 @@ const CustomInput = forwardRef<MyInputRef, MyInputProps>((props, ref) => {
       }
       return (
         <input
+            className={"w-full border border-input bg-transparent shadow-sm hover:bg-accent hover:text-accent-foreground"}
+            disabled={editmode}
           {...{
             ref,
             ...props,

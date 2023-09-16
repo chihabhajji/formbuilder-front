@@ -4,6 +4,7 @@ import FormConsumer from "../features/form-consumer/FormConsumer.tsx";
 import {useCallback, useEffect} from "react";
 import {FormData} from "../features/form-consumer/CustomForm.tsx";
 import {enqueueSnackbar} from "notistack";
+import {useNavigate} from "react-router-dom";
 
 export default function AnswerForm() {
     const formid = useParams<{ id: string }>().id;
@@ -29,15 +30,14 @@ export default function AnswerForm() {
         }
         return;
     }, [formid, trigger]);
-
+    const navigate = useNavigate()
     useEffect(() => {
         if(mutationState.isSuccess){
-            // forms.refetch();
             enqueueSnackbar("Redirecting", {
                 variant: "success"
             })
             const timeout = setTimeout(() => {
-                window.location.href = "/";
+                navigate("/");
             }, 1000);
             return () => {
                 clearTimeout(timeout);
@@ -54,6 +54,14 @@ export default function AnswerForm() {
     if(mutationState.isError) return <div>Submit error...</div>
     if(mutationState.isSuccess) return <div>Submit success...</div>
     return (
-        <FormConsumer form={query.data} onSubmitForm={onSubmitForm}/>
+        <div
+            className="grid grid-cols-1 gap-4 p-4"
+        >
+                <div className="text-xl font-bold top-4">{
+                    query.data.campaignName
+                }</div>
+                <div className="border-t border-primary dark:border-primary"/>
+            <FormConsumer form={query.data} onSubmitForm={onSubmitForm}/>
+        </div>
     )
 }

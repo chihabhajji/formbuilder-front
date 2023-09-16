@@ -21,7 +21,7 @@ export type ChangeFormInput = {
     value?: any;
 };
 export interface MyDynamicFormProps {
-    editMode?: boolean;
+    editmode?: boolean;
     children?: ReactNode;
     form: Form;
     onSubmitForm?: (data: FormData) => Promise<any> | any;
@@ -36,20 +36,23 @@ export type DynamicFormRef = {
 
 const CustomDynamicForm = forwardRef<DynamicFormRef, MyDynamicFormProps>(
     (props, ref) => {
-        const { form, onSubmitForm, onErrorForm, onChangeForm, editMode } = props;
+        const { form, onSubmitForm, onErrorForm, onChangeForm, editmode } = props;
         const { id: formId, fields, defaultValues, schema } = form;
-        console.log(schema)
         const reactHookForm = useForm<IFormInput>({
             defaultValues,
             resolver: ajvResolver(schema, {
                 $data: true,
-                allErrors: true,
+                strictSchema: false,
                 code: {
                     esm: true,
                 },
                 strict: false,
             })
         });
+        const watch = reactHookForm.watch()
+        useEffect(() => {
+            console.log(watch)
+        }, [watch])
         const {
             control,
             formState: { errors },
@@ -92,10 +95,12 @@ const CustomDynamicForm = forwardRef<DynamicFormRef, MyDynamicFormProps>(
         }, [errors, onErrorForm]);
 
         return (
-            <form onSubmit={handleSubmit(onSubmit)} noValidate>
+            <form onSubmit={handleSubmit(onSubmit)} noValidate
+                className={"border border-input bg-transparent shadow-sm static flex flex-col px-4 py-10 overflow-y-scroll h-[90vh]"}
+            >
                 <CustomInput
                     {...{
-                        editMode,
+                        editmode,
                         component: Component.group,
                         fields,
                         control,

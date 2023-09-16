@@ -1,4 +1,4 @@
-// components/alert/AlertProvider.tsx
+// components/alert/alert-provider.tsx
 import React, {
     createContext,
     PropsWithChildren,
