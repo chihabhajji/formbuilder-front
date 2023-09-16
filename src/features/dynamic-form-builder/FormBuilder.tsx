@@ -85,10 +85,10 @@ export default function FormBuilder({id}: { id?: string }) {
     }
     return (
         <div>
-            <div className={"grid grid-cols-2 mx-auto"}>
-                <div className={"border border-b-amber-400 bg-transparent shadow-sm h-[90vh]"}>
+            <div className={"grid grid-cols-2 mx-auto "}>
+                <div className={"border border-accent bg-transparent shadow-sm h-[90vh] dark:text-accent"}>
                     <div className={
-                        "flex flex-col space-x-2 justify-center items-center p-4 bg-white rounded-md w-full max-w-md mx-auto shadow-lg mt-20"
+                        " flex flex-col space-x-2 justify-center items-center p-4 bg-white rounded-md w-full max-w-md mx-auto shadow-lg mt-20"
                     }>
                         <div className="flex flex-col">
                             <label className="text-lg font-semibold" htmlFor="fieldType">
