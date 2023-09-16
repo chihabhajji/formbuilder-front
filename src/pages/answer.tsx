@@ -54,8 +54,8 @@ export default function AnswerForm() {
     if(mutationState.isError) return <div>Submit error...</div>
     if(mutationState.isSuccess) return <div>Submit success...</div>
     return (
-        <div
-            className="grid grid-cols-1 gap-4 p-4"
+        <><div
+            className="grid grid-cols-1 gap-4 p-4 h-[80vh]"
         >
                 <div className="text-xl font-bold top-4">{
                     query.data.campaignName
@@ -63,5 +63,20 @@ export default function AnswerForm() {
                 <div className="border-t border-primary dark:border-primary"/>
             <FormConsumer form={query.data} onSubmitForm={onSubmitForm}/>
         </div>
+            <div className={"p-4 m-4"}>
+                {
+                    query.data.answers && query.data.answers.map((answer) => {
+                        const [[key, response]] = Object.entries(answer);
+                        return (
+                            <div key={key} className={"flex flex-row"}>
+                                <span>{key}: </span>
+                                <span>{response?.toString() ?? 'Err'}</span>
+                            </div>
+                        )
+                    }
+                    )
+                }
+            </div>
+        </>
     )
 }
